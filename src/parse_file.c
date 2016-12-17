@@ -19,12 +19,14 @@ void parse_file(t_env *env)
 		ERROR("Invalid binary header\n");
 	if (ft_memcmp(env->header.e_ident, ELFMAG, 4))
 		ERROR("Invalid binary magic number\n");
-	env->sec_nb = env->bin + 16 + 2 + 2 + 4 + 8 + 8 + 8 + 4 + 2 + 2 + 2 + 2;
+	uint16_t *sect_nb= env->bin + 16 + 2 + 2 + 4 + 8 + 8 + 8 + 4 + 2 + 2 + 2 + 2;
+	*sect_nb = *sect_nb + 1;
 	env->start_addr = env->bin + 16 + 2 + 2 + 4;
 	buf.pos = env->header.e_shoff;
 	env->crypt_start = ULONG_MAX;
 	env->crypt_end = 0;
 	env->sections = NULL;
+	uint64_t endpoint = 0;
 	for (uint64_t i = 0; i < env->header.e_shnum; ++i)
 	{
 		if (!buffer_read(&buf, &sec_hdr, sizeof(sec_hdr)))
@@ -37,6 +39,8 @@ void parse_file(t_env *env)
 			new->data = sec_hdr;
 			env->sections = new;
 		}
+		if (sec_hdr.sh_offset + sec_hdr.sh_size > endpoint)
+			endpoint = sec_hdr.sh_offset + sec_hdr.sh_size;
 		if (sec_hdr.sh_type == SHT_SYMTAB)
 		{
 			int *link = buf.data + buf.pos - sizeof(sec_hdr) + 4 + 4 + 8 + 8 + 8 + 8;
@@ -45,6 +49,15 @@ void parse_file(t_env *env)
 		if (i == env->header.e_shstrndx)
 			env->strsec = sec_hdr;
 	}
+	env->new_sec_hdr_pos = buf.pos;
+	ft_bzero(&env->new_sec_hdr, sizeof(env->new_sec_hdr));
+	env->new_sec_hdr.sh_offset = endpoint;
+	env->new_sec_hdr.sh_size = 0;
+	env->new_sec_hdr.sh_type = SHT_PROGBITS;
+	env->new_sec_hdr.sh_addralign = 4;
+	env->new_sec_hdr.sh_flags = SHF_ALLOC | SHF_EXECINSTR;
+	*env->start_addr = endpoint;
+	env->crypt_len = env->crypt_end - env->crypt_start;
 	t_shdr_list *sect = env->sections;
 	while (sect)
 	{
@@ -60,13 +73,4 @@ void parse_file(t_env *env)
 		next:
 		sect = sect->next;
 	}
-	/*
-	env->new_sec_hdr_pos = buf.pos;
-	ft_bzero(&env->new_sec_hdr, sizeof(env->new_sec_hdr));
-	env->new_sec_hdr.sh_offset = endpoint;
-	env->new_sec_hdr.sh_type = SHT_PROGBITS;
-	env->new_sec_hdr.sh_addralign = 1;
-	env->new_sec_hdr.sh_flags = SHF_ALLOC | SHF_EXECINSTR;
-	*env->start_addr = endpoint;
-	env->crypt_len = env->crypt_end - env->crypt_start;*/
 }

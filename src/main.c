@@ -37,7 +37,11 @@ int main(int ac, char **av)
 	int fd = open("woody", O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	if (fd == -1)
 		ERROR("Can't open woody file\n");
-	if (write(fd, env.bin, env.bin_len) != (int64_t)env.bin_len)
+	if (write(fd, env.bin, env.new_sec_hdr_pos) != (int64_t)env.new_sec_hdr_pos)
+		ERROR("Failed to write to woody\n");
+	if (write(fd, &env.new_sec_hdr, sizeof(env.new_sec_hdr)) != sizeof(env.new_sec_hdr))
+		ERROR("Failed to write new sect\n");
+	if (write(fd, env.bin, env.bin_len - env.new_sec_hdr_pos) != (int64_t)(env.bin_len - env.new_sec_hdr_pos))
 		ERROR("Failed to write to woody\n");
 	close(fd);
 	return (EXIT_SUCCESS);

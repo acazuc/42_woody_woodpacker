@@ -21,7 +21,7 @@ void parse_file(t_env *env)
 		ERROR("Invalid binary magic number\n");
 	uint16_t *sect_nb= env->bin + 16 + 2 + 2 + 4 + 8 + 8 + 8 + 4 + 2 + 2 + 2 + 2;
 	*sect_nb = *sect_nb + 1;
-	env->start_addr = env->bin + 16 + 2 + 2 + 4;
+	uint64_t *start_addr = env->bin + 16 + 2 + 2 + 4;
 	buf.pos = env->header.e_shoff;
 	env->crypt_start = ULONG_MAX;
 	env->crypt_end = 0;
@@ -52,11 +52,11 @@ void parse_file(t_env *env)
 	env->new_sec_hdr_pos = buf.pos;
 	ft_bzero(&env->new_sec_hdr, sizeof(env->new_sec_hdr));
 	env->new_sec_hdr.sh_offset = endpoint;
+	*start_addr = endpoint;
 	env->new_sec_hdr.sh_size = 0;
 	env->new_sec_hdr.sh_type = SHT_PROGBITS;
 	env->new_sec_hdr.sh_addralign = 4;
 	env->new_sec_hdr.sh_flags = SHF_ALLOC | SHF_EXECINSTR;
-	*env->start_addr = endpoint;
 	env->crypt_len = env->crypt_end - env->crypt_start;
 	t_shdr_list *sect = env->sections;
 	while (sect)

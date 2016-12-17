@@ -32,7 +32,6 @@ typedef struct s_env
 	void *bin;
 	size_t bin_len;
 	size_t bin_pos;
-	uint64_t *start_addr;
 	uint64_t crypt_start;
 	uint64_t crypt_end;
 	uint64_t crypt_len;

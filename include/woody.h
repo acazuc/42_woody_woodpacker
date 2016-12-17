@@ -36,6 +36,7 @@ typedef struct s_env
 	uint64_t crypt_start;
 	uint64_t crypt_end;
 	uint64_t crypt_len;
+	void *new_sec_data;
 	Elf64_Shdr new_sec_hdr;
 	uint64_t new_sec_hdr_pos;
 	Elf64_Ehdr header;

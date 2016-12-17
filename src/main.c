@@ -36,13 +36,35 @@ int main(int ac, char **av)
 	crypt_file(&env);
 	int fd = open("woody", O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	if (fd == -1)
-		ERROR("Can't open woody file\n");
-	if (write(fd, env.bin, env.new_sec_hdr_pos) != (int64_t)env.new_sec_hdr_pos)
-		ERROR("Failed to write to woody\n");
+	{
+		perror("woody_woodpacker: Can't open woody file");
+		exit(EXIT_FAILURE);
+	}
+	if (write(fd, env.bin, env.new_sec_hdr.sh_offset) != (int64_t)env.new_sec_hdr.sh_offset)
+	{
+		perror("woody_woodpacker: Failed to write to woody 1");
+		exit(EXIT_FAILURE);
+	}
+	if (write(fd, env.new_sec_data, env.new_sec_hdr.sh_size) != (int64_t)env.new_sec_hdr.sh_size)
+	{
+		perror("woody_woodpacker: Failed to write new sect");
+		exit(EXIT_FAILURE);
+	}
+	if (write(fd, env.bin + env.new_sec_hdr.sh_offset, env.new_sec_hdr_pos - env.new_sec_hdr.sh_offset) != (int64_t)(env.new_sec_hdr_pos - env.new_sec_hdr.sh_offset))
+	{
+		perror("woody_woodpacker: Failed to write to woody 2");
+		exit(EXIT_FAILURE);
+	}
 	if (write(fd, &env.new_sec_hdr, sizeof(env.new_sec_hdr)) != sizeof(env.new_sec_hdr))
-		ERROR("Failed to write new sect\n");
+	{
+		perror("woody_woodpacker: Failed to write new sect hdr");
+		exit(EXIT_FAILURE);
+	}
 	if (write(fd, env.bin, env.bin_len - env.new_sec_hdr_pos) != (int64_t)(env.bin_len - env.new_sec_hdr_pos))
-		ERROR("Failed to write to woody\n");
+	{
+		perror("woody_woodpacker: Failed to write to woody 3");
+		exit(EXIT_FAILURE);
+	}
 	close(fd);
 	return (EXIT_SUCCESS);
 }

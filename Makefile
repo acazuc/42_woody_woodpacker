@@ -2,13 +2,16 @@ NAME = woody_woodpacker
 
 CC = gcc
 
-CFLAGS = -g -Wall -Wextra -Werror -Ofast
+CFLAGS = -Wall -Wextra -Werror -Ofast
 
 INCLUDES_PATH = -I include
 
 SRCS_PATH = src/
 
 SRCS_NAME = main.c \
+	parse_file.c \
+	crypt_file.c \
+	libosef.c \
 
 SRCS = $(addprefix $(SRCS_PATH), $(SRCS_NAME))
 

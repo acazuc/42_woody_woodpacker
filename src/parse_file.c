@@ -37,14 +37,10 @@ void parse_file(t_env *env)
 			new->data = sec_hdr;
 			env->sections = new;
 		}
-		printf("start: %lu, type: %d\n", sec_hdr.sh_offset, sec_hdr.sh_type);
 		if (sec_hdr.sh_type == SHT_SYMTAB)
 		{
-			for (uint64_t i = 0; i < sec_hdr.sh_size; i += sizeof(Elf64_Sym))
-			{
-				Elf64_Sym *sym = env->bin + sec_hdr.sh_offset + i;
-				sym->st_name = 0;
-			}
+			int *link = buf.data + buf.pos - sizeof(sec_hdr) + 4 + 4 + 8 + 8 + 8 + 8;
+			*link = i;
 		}
 		if (i == env->header.e_shstrndx)
 			env->strsec = sec_hdr;

@@ -1,4 +1,4 @@
-NAME = woody_woopacker
+NAME = woody_woodpacker
 
 CC = gcc
 

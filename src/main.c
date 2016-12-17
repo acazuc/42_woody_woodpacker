@@ -34,7 +34,7 @@ int main(int ac, char **av)
 	read_file(av[1], &env.bin, &env.bin_len);
 	parse_file(&env);
 	crypt_file(&env);
-	int fd = open("test", O_WRONLY | O_TRUNC | O_CREAT, 0755);
+	int fd = open("woody", O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	if (fd == -1)
 		ERROR("Can't open woody file\n");
 	if (write(fd, env.bin, env.bin_len) != (int64_t)env.bin_len)

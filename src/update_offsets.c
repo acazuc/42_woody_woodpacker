@@ -32,8 +32,8 @@ void update_offsets(t_env *env)
 		{
 			uint64_t *fsize = env->bin + buf.pos - sizeof(phdr) + 4 + 4 + 8 + 8 + 8;
 			uint64_t *msize = (void*)fsize + 8;
-			*fsize += 48;
-			*msize += 48;
+			*fsize += env->new_sec_hdr.sh_size + 8;
+			*msize += env->new_sec_hdr.sh_size + 8;
 		}
 		if (phdr.p_offset > 10000)
 		{

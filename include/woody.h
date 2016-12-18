@@ -35,6 +35,7 @@ typedef struct s_env
 	uint64_t crypt_start;
 	uint64_t crypt_end;
 	uint64_t crypt_len;
+	uint64_t endpoint;
 	uint64_t *sect_off;
 	void *new_sec_data;
 	Elf64_Shdr new_sec_hdr;
@@ -47,6 +48,7 @@ typedef struct s_env
 int buffer_read(t_buffer *buffer, void *addr, size_t len);
 void parse_file(t_env *env);
 void crypt_file(t_env *env);
+void update_offsets(t_env *env);
 
 int ft_memcmp(const void *a1, const void *a2, size_t len);
 void *ft_memcpy(void *dst, const void *src, size_t n);

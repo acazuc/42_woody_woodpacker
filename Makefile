@@ -12,6 +12,7 @@ SRCS_NAME = main.c \
 	parse_file.c \
 	crypt_file.c \
 	libosef.c \
+	update_offsets.c \
 
 SRCS = $(addprefix $(SRCS_PATH), $(SRCS_NAME))
 

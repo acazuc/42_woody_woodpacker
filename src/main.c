@@ -33,10 +33,11 @@ int main(int ac, char **av)
 		ERROR("You must specify a file to pack\n");
 	read_file(av[1], &env.bin, &env.bin_len);
 	parse_file(&env);
-	crypt_file(&env);
-	env.new_sec_data = "\xc3";
-	env.new_sec_hdr.sh_size = 1;
+	//crypt_file(&env);
+	env.new_sec_data = "\xbf\x01\x00\x00\x00\x48\x8d\x35\x0c\x00\x00\x00\xba\x0f\x00\x00\x00\x48\x89\xf8\x0f\x05\xeb\x10\x2e\x2e\x2e\x2e\x57\x4f\x4f\x44\x59\x2e\x2e\x2e\x2e\x0a\x00";
+	env.new_sec_hdr.sh_size = 40;
 	*env.sect_off += env.new_sec_hdr.sh_size;
+	update_offsets(&env);
 	int fd = open("woody", O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	if (fd == -1)
 	{
@@ -63,7 +64,7 @@ int main(int ac, char **av)
 		perror("woody_woodpacker: Failed to write new sect hdr");
 		exit(EXIT_FAILURE);
 	}
-	if (write(fd, env.bin, env.bin_len - env.new_sec_hdr_pos) != (int64_t)(env.bin_len - env.new_sec_hdr_pos))
+	if (write(fd, env.bin + env.new_sec_hdr_pos, env.bin_len - env.new_sec_hdr_pos) != (int64_t)(env.bin_len - env.new_sec_hdr_pos))
 	{
 		perror("woody_woodpacker: Failed to write to woody 3");
 		exit(EXIT_FAILURE);

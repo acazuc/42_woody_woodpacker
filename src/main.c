@@ -33,7 +33,8 @@ int main(int ac, char **av)
 		ERROR("You must specify a file to pack\n");
 	read_file(av[1], &env.bin, &env.bin_len);
 	parse_file(&env);
-	//crypt_file(&env);
+	crypt_file(&env);
+	*env.start_addr = env.new_sec_hdr.sh_addr;
 	env.new_sec_data = "\xbf\x01\x00\x00\x00\x48\x8d\x35\x0c\x00\x00\x00\xba\x0f\x00\x00\x00\x48\x89\xf8\x0f\x05\xeb\x10\x2e\x2e\x2e\x2e\x57\x4f\x4f\x44\x59\x2e\x2e\x2e\x2e\x0a\x00";
 	env.new_sec_hdr.sh_size = 40;
 	*env.sect_off += env.new_sec_hdr.sh_size;

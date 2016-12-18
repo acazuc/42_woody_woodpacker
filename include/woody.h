@@ -36,6 +36,7 @@ typedef struct s_env
 	uint64_t crypt_end;
 	uint64_t crypt_len;
 	uint64_t endpoint;
+	uint64_t *start_addr;
 	uint64_t *sect_off;
 	void *new_sec_data;
 	Elf64_Shdr new_sec_hdr;

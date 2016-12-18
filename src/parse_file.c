@@ -24,7 +24,7 @@ void parse_file(t_env *env)
 	uint16_t *strndx = env->bin + sizeof(Elf64_Ehdr) - 2;
 	(*strndx)++;
 	env->sect_off = env->bin + 16 + 2 + 2 + 4 + 8 + 8;
-	uint64_t *start_addr = env->bin + 16 + 2 + 2 + 4;
+	env->start_addr = env->bin + 16 + 2 + 2 + 4;
 	buf.pos = env->header.e_shoff;
 	env->crypt_start = ULONG_MAX;
 	env->crypt_end = 0;
@@ -66,7 +66,6 @@ void parse_file(t_env *env)
 	env->new_sec_hdr.sh_addralign = 16;
 	env->new_sec_hdr.sh_flags = SHF_ALLOC | SHF_EXECINSTR;
 	env->new_sec_hdr.sh_addr = maxAddr + maxAddrLen;
-	*start_addr = env->new_sec_hdr.sh_addr;
 	env->crypt_len = env->crypt_end - env->crypt_start;
 	t_shdr_list *sect = env->sections;
 	while (sect)

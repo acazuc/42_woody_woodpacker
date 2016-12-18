@@ -19,7 +19,7 @@ void parse_file(t_env *env)
 		ERROR("Invalid binary header\n");
 	if (ft_memcmp(env->header.e_ident, ELFMAG, 4))
 		ERROR("Invalid binary magic number\n");
-	uint16_t *sect_nb= env->bin + 16 + 2 + 2 + 4 + 8 + 8 + 8 + 4 + 2 + 2 + 2 + 2;
+	uint16_t *sect_nb = env->bin + 16 + 2 + 2 + 4 + 8 + 8 + 8 + 4 + 2 + 2 + 2 + 2;
 	*sect_nb = *sect_nb + 1;
 	uint64_t *start_addr = env->bin + 16 + 2 + 2 + 4;
 	buf.pos = env->header.e_shoff;

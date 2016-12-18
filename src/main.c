@@ -45,6 +45,8 @@ int main(int ac, char **av)
 		perror("woody_woodpacker: Failed to write to woody 1");
 		exit(EXIT_FAILURE);
 	}
+	env.new_sec_data = "\x55";
+	env.new_sec_hdr.sh_size = 0;
 	if (write(fd, env.new_sec_data, env.new_sec_hdr.sh_size) != (int64_t)env.new_sec_hdr.sh_size)
 	{
 		perror("woody_woodpacker: Failed to write new sect");

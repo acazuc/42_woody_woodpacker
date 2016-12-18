@@ -32,6 +32,7 @@ void parse_file(t_env *env)
 	env->endpoint = 0;
 	uint64_t maxAddr = 0;
 	uint64_t maxAddrLen = 0;
+	uint64_t maxPoint = 0;
 	for (uint64_t i = 0; i < env->header.e_shnum; ++i)
 	{
 		if (!buffer_read(&buf, &sec_hdr, sizeof(sec_hdr)))
@@ -48,7 +49,8 @@ void parse_file(t_env *env)
 		{
 			maxAddr = sec_hdr.sh_addr;
 			maxAddrLen = sec_hdr.sh_size;
-			env->endpoint = sec_hdr.sh_offset + sec_hdr.sh_size;
+			maxPoint = sec_hdr.sh_offset + sec_hdr.sh_size;
+			env->endpoint = sec_hdr.sh_addr + sec_hdr.sh_size;
 			env->new_sec_hdr_pos = buf.pos;
 		}
 		if (sec_hdr.sh_type == SHT_SYMTAB)
@@ -60,7 +62,7 @@ void parse_file(t_env *env)
 			env->strsec = sec_hdr;
 	}
 	ft_bzero(&env->new_sec_hdr, sizeof(env->new_sec_hdr));
-	env->new_sec_hdr.sh_offset = env->endpoint;
+	env->new_sec_hdr.sh_offset = maxPoint;
 	env->new_sec_hdr.sh_size = 0;
 	env->new_sec_hdr.sh_type = SHT_PROGBITS;
 	env->new_sec_hdr.sh_addralign = 16;

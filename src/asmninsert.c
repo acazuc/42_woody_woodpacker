@@ -73,7 +73,7 @@ void decryptcodegen( t_env *env )
 	Elf64_Ehdr *header;
 	Elf64_Shdr *sect;
 	char *strtable;
-	
+
 	assemble();
 	addr = getbin();
 
@@ -97,8 +97,8 @@ void decryptcodegen( t_env *env )
 			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_start;
 			*( uint64_t * ) ( tail + 12 ) = (*env).crypt_end;
 
-			(*env).new_sec_data = data;
-			(*env).new_sec_hdr.sh_size = (*sect).sh_size;
+			//(*env).new_sec_data = data;
+			//(*env).new_sec_hdr.sh_size = (*sect).sh_size;
 
 			for ( int j = 0 ; j < (*sect).sh_size ; j++ )
 			{

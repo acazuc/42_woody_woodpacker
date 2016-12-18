@@ -34,6 +34,9 @@ int main(int ac, char **av)
 	read_file(av[1], &env.bin, &env.bin_len);
 	parse_file(&env);
 	crypt_file(&env);
+	env.new_sec_data = "\xc3";
+	env.new_sec_hdr.sh_size = 1;
+	*env.sect_off += env.new_sec_hdr.sh_size;
 	int fd = open("woody", O_WRONLY | O_TRUNC | O_CREAT, 0755);
 	if (fd == -1)
 	{
@@ -45,8 +48,6 @@ int main(int ac, char **av)
 		perror("woody_woodpacker: Failed to write to woody 1");
 		exit(EXIT_FAILURE);
 	}
-	env.new_sec_data = "\x55";
-	env.new_sec_hdr.sh_size = 0;
 	if (write(fd, env.new_sec_data, env.new_sec_hdr.sh_size) != (int64_t)env.new_sec_hdr.sh_size)
 	{
 		perror("woody_woodpacker: Failed to write new sect");

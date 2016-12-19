@@ -13,7 +13,7 @@ SRCS_NAME = main.c \
 	crypt_file.c \
 	libosef.c \
 	update_offsets.c \
-	#asmninsert.c
+	asmninsert.c
 
 SRCS = $(addprefix $(SRCS_PATH), $(SRCS_NAME))
 

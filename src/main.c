@@ -19,7 +19,7 @@ void read_file(char *file, void **bin, size_t *bin_len)
 	if (!S_ISREG(sstat.st_mode))
 		ERROR("You must give a regular file\n");
 	*bin_len = sstat.st_size;
-	if ((*bin = mmap(NULL, *bin_len + 5000, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
+	if ((*bin = mmap(NULL, *bin_len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
 	{
 		perror("woody_woodpacker: mmap");
 		exit(EXIT_FAILURE);

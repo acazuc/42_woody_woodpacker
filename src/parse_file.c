@@ -24,8 +24,8 @@ void parse_file(t_env *env)
 	uint16_t *strndx = env->bin + sizeof(Elf64_Ehdr) - 2;
 	(*strndx)++;
 	env->sect_off = env->bin + 16 + 2 + 2 + 4 + 8 + 8;
-	buf.pos = env->header.e_shoff;
 	env->start_addr = env->bin + 16 + 2 + 2 + 4;
+	buf.pos = env->header.e_shoff;
 	env->crypt_start = ULONG_MAX;
 	env->crypt_end = 0;
 	env->sections = NULL;
@@ -78,6 +78,7 @@ void parse_file(t_env *env)
 		if (ft_memcmp(secname, ".text", 6))
 			goto next;
 		env->crypt_start = sect->data.sh_offset;
+		env->crypt_vstart = sect->data.sh_addr;
 		env->crypt_len = sect->data.sh_size;
 		env->crypt_end = env->crypt_start + env->crypt_len;
 		return;

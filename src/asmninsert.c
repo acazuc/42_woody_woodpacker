@@ -73,7 +73,7 @@ void decryptcodegen( t_env *env )
 	Elf64_Ehdr *header;
 	Elf64_Shdr *sect;
 	char *strtable;
-
+	
 	assemble();
 	addr = getbin();
 
@@ -93,12 +93,17 @@ void decryptcodegen( t_env *env )
 			uint8_t *data = addr + (*sect).sh_offset;
 			void *tail = data + (*sect).sh_size - 34;
 
-			*( uint32_t * ) tail = ( uint64_t ) ( (*env).start_addr - (*env).new_sec_hdr.sh_addr );
-			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_start;
-			*( uint64_t * ) ( tail + 12 ) = (*env).crypt_end;
+			printf( "%p %p\n", *(*env).start_addr, (*env).new_sec_hdr.sh_addr );
+			printf( "%llx %llx\n", (*env).crypt_start, (*env).crypt_end );
+			printf( "%llx %x\n", (*env).crypt_vstart, ( (*env).crypt_end - (*env).crypt_start ) + (*env).crypt_vstart );
 
-			//(*env).new_sec_data = data;
-			//(*env).new_sec_hdr.sh_size = (*sect).sh_size;
+			*( uint32_t * ) tail = *(*env).start_addr - ( (*env).new_sec_hdr.sh_addr + (*sect).sh_size - 30 );
+	UINT_MAX - ( uint64_t ) ( ( (*env).new_sec_hdr.sh_addr - ( uint64_t ) (*env).start_addr ) + ( tail - ( uint64_t ) data ) );
+			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart;
+			*( uint64_t * ) ( tail + 12 ) = ( (*env).crypt_end - (*env).crypt_start ) + (*env).crypt_vstart;
+
+			(*env).new_sec_data = data;
+			(*env).new_sec_hdr.sh_size = (*sect).sh_size;
 
 			for ( int j = 0 ; j < (*sect).sh_size ; j++ )
 			{

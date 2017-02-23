@@ -2,13 +2,13 @@
 
 section .text
 	; Saving registers
+	pushf
 	push rax
 	push rbx
 	push rcx
 	push rdx
 	push rdi
 	push rsi
-	pushf
 
 	; Printing WOODY
 	mov rax, 1
@@ -18,26 +18,32 @@ section .text
 	syscall
 
 	; Loading start & end addresses
-	lea rax, [rel head]
-	lea rbx, [rel tail]
+	mov rax, [rel head]
+	mov rbx, [rel tail]
 	mov cl, 0x94
 
 	; Decrypting
-lstart: mov al, [rax]
+lstart: mov dl, [rax]
 	xor [rax], cl
 	mov cl, dl
 	inc rax
 	cmp rax, rbx
 	jne lstart
 
+;	mov rax, 1
+;	mov rdi, rax
+;	lea rsi, [rel woody]
+;	mov rdx, 14
+;	syscall
+
 	; Restoring registers
-	popf
 	pop rsi
 	pop rdi
 	pop rdx
 	pop rcx
 	pop rbx
 	pop rax
+	popf
 
 	; Starting main program. Jump address is defined by packer
 	jmp 0x00

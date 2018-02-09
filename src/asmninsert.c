@@ -12,7 +12,7 @@ void assemble( void )
 	pid_t child;
 	int bullshit;
 
-	if ( child = fork() )
+	if ( (child = fork()) )
 	{
 		if ( child == -1 )
 		{
@@ -88,35 +88,37 @@ void decryptcodegen( t_env *env )
 	strtable = addr + sect[(*header).e_shstrndx].sh_offset;
 	for ( int i = 0 ; i < (*header).e_shnum ; i++ )
 	{
-		if ( !ft_memcmp( &strtable[(*sect).sh_name], ".text", 6 ) )
+		if ( ft_memcmp( &strtable[(*sect).sh_name], ".text", 6 ) )
 		{
-			uint8_t *data = addr + (*sect).sh_offset;
-			void *tail = data + (*sect).sh_size - 34;
-
-			printf( "%p %p\n", *(*env).start_addr, (*env).new_sec_hdr.sh_addr );
-			printf( "%llx %llx\n", (*env).crypt_start, (*env).crypt_end );
-			printf( "%llx %x\n", (*env).crypt_vstart, ( (*env).crypt_end - (*env).crypt_start ) + (*env).crypt_vstart );
-
-			*( uint32_t * ) tail = *(*env).start_addr - ( (*env).new_sec_hdr.sh_addr + (*sect).sh_size - 30 );
-	UINT_MAX - ( uint64_t ) ( ( (*env).new_sec_hdr.sh_addr - ( uint64_t ) (*env).start_addr ) + ( tail - ( uint64_t ) data ) );
-			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart;
-			*( uint64_t * ) ( tail + 12 ) = ( (*env).crypt_end - (*env).crypt_start ) + (*env).crypt_vstart;
-
-			(*env).new_sec_data = data;
-			(*env).new_sec_hdr.sh_size = (*sect).sh_size;
-
-			for ( int j = 0 ; j < (*sect).sh_size ; j++ )
-			{
-				printf( " %02hhx", *data );
-				if ( ( j % 16 ) == 15 )
-					puts( "\n" );
-				data++;
-			}
-			putchar( '\n' );
-			remove( DECRYPTOUTPATH );
-			return;
+			sect++;
+			continue;
 		}
-		sect++;
+
+		uint8_t *data = addr + (*sect).sh_offset;
+		void *tail = data + (*sect).sh_size - 34;
+
+		printf( "%lx %lx\n", *(*env).start_addr, (*env).new_sec_hdr.sh_addr );
+		printf( "%lx\n", (*env).crypt_len );
+		printf( "%lx %lx\n", (*env).crypt_vstart, (*env).crypt_len + (*env).crypt_vstart );
+
+		*( uint32_t * ) tail = (ssize_t)*(*env).start_addr - ( (ssize_t)(*env).new_sec_hdr.sh_addr + (ssize_t)(*sect).sh_size - 30 );
+	//UINT_MAX - ( uint64_t ) ( ( (*env).new_sec_hdr.sh_addr - ( uint64_t ) (*env).start_addr ) + ( tail - ( uint64_t ) data ) );
+		*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart;
+		*( uint64_t * ) ( tail + 12 ) = (*env).crypt_len + (*env).crypt_vstart;
+
+		(*env).new_sec_data = data;
+		(*env).new_sec_hdr.sh_size = (*sect).sh_size;
+
+		for ( unsigned int j = 0 ; j < (*sect).sh_size ; j++ )
+		{
+			printf( " %02hhx", *data );
+			if ( ( j % 16 ) == 15 )
+				puts( "\n" );
+			data++;
+		}
+		putchar( '\n' );
+		remove( DECRYPTOUTPATH );
+		return;
 	}
 	fprintf( stderr, PERRORPREFIX "Missing .text section in hexfile" );
 	quit( EXIT_FAILURE );

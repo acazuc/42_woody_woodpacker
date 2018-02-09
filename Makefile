@@ -2,7 +2,7 @@ NAME = woody_woodpacker
 
 CC = gcc
 
-CFLAGS = -std=gnu99 -Ofast
+CFLAGS = -Wall -Wextra -Ofast
 
 INCLUDES_PATH = -I include
 
@@ -12,9 +12,12 @@ SRCS_NAME = main.c \
 	parse_file.c \
 	crypt_file.c \
 	libosef.c \
-	update_offsets.c \
+	file_output.c \
 	asmninsert.c \
-	swabxx.c
+	swabxx.c \
+	print.c \
+	inject.c \
+	prepare_decrypt.c \
 
 SRCS = $(addprefix $(SRCS_PATH), $(SRCS_NAME))
 

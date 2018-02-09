@@ -16,8 +16,9 @@ static char *get_name(t_env *env, t_section_list *section)
 	return (NULL);
 }
 
-void crypt_file(t_env *env)
+void prepare_decrypt(t_env *env)
 {
+	env->start_addr = &env->elf.header.e_entry;
 	for (t_section_list *lst = env->elf.sections; lst; lst = lst->next)
 	{
 		char *name = get_name(env, lst);
@@ -25,14 +26,20 @@ void crypt_file(t_env *env)
 			continue;
 		if (ft_strcmp(name, ".text"))
 			continue;
-		int8_t xor = 0x94;
-		for (size_t i = lst->buffer.pos; i < lst->buffer.len; ++i)
-		{
-			((char*)lst->buffer.data)[i] ^= xor;
-			xor = ((char*)lst->buffer.data)[i];
-			//++xor;
-		}
-		return;
+		env->crypt_vstart = lst->header.sh_addr;
+		env->crypt_len = lst->header.sh_size;
+		goto next;
 	}
 	ERROR("no .text section");
+next:
+	;
+	t_segment_list *lpt = NULL;
+	for (t_segment_list *lst = env->elf.segments; lst; lst = lst->next)
+	{
+		if (lst->header.p_type == PT_LOAD)
+			lpt = lst;
+	}
+	if (!lpt)
+		ERROR("Can't find PT_LOAD");
+	env->new_sec_hdr.sh_addr = lpt->header.p_vaddr + lpt->header.p_memsz;
 }

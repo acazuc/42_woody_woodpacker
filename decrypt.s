@@ -23,18 +23,18 @@ section .text
 	mov cl, 0x94
 
 	; Decrypting
-lstart: mov dl, [rax]
-	xor [rax], cl
+lstart: mov dl, byte [rax]
+	xor byte [rax], cl
 	mov cl, dl
 	inc rax
 	cmp rax, rbx
 	jne lstart
 
-;	mov rax, 1
-;	mov rdi, rax
-;	lea rsi, [rel woody]
-;	mov rdx, 14
-;	syscall
+	mov rax, 1
+	mov rdi, rax
+	lea rsi, [rel woody]
+	mov rdx, 14
+	syscall
 
 	; Restoring registers
 	pop rsi

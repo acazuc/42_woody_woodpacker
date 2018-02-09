@@ -19,22 +19,24 @@ section .text
 
 	; Loading start & end addresses
 	mov rax, [rel head]
+	lea rax, [rel rax]
 	mov rbx, [rel tail]
+	lea rbx, [rel rbx]
 	mov cl, 0x94
 
 	; Decrypting
-lstart: mov dl, byte [rax]
-	xor byte [rax], cl
+lstart: mov dl, [rax]
+	xor [rax], cl
 	mov cl, dl
 	inc rax
 	cmp rax, rbx
 	jne lstart
 
-	mov rax, 1
-	mov rdi, rax
-	lea rsi, [rel woody]
-	mov rdx, 14
-	syscall
+;	mov rax, 1
+;	mov rdi, rax
+;	lea rsi, [rel woody]
+;	mov rdx, 14
+;	syscall
 
 	; Restoring registers
 	pop rsi

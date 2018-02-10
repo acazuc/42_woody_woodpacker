@@ -12,7 +12,7 @@ void assemble( void )
 	pid_t child;
 	int bullshit;
 
-	if ( child = fork() )
+	if ( ( child = fork() ) )
 	{
 		if ( child == -1 )
 		{

@@ -2,7 +2,7 @@ NAME = woody_woodpacker
 
 CC = gcc
 
-CFLAGS = -Wall -Wextra -Ofast
+CFLAGS = -std=gnu99 -Wall -Wextra -Ofast
 
 INCLUDES_PATH = -I include
 

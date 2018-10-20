@@ -1,46 +1,82 @@
 #include "woody.h"
 
-void inject(t_env *env)
+static t_segment_list *get_last_pt_load(t_env *env)
+{
+	t_segment_list *last_pt = NULL;
+	for (t_segment_list *lst = env->elf.segments; lst; lst = lst->next)
+	{
+		if (lst->header.p_type == PT_LOAD)
+		{
+			last_pt = lst;
+			last_pt->header.p_flags = PF_X | PF_W | PF_R;
+		}
+	}
+	return last_pt;
+}
+
+static t_section_list *get_last_section(t_env *env, t_segment_list *last_pt_load, uint32_t *last_sec_id)
+{
+	uint32_t i = 0;
+	t_section_list *last_sec = NULL;
+	for (t_section_list *lst = env->elf.sections; lst; lst = lst->next)
+	{
+		if (lst->header.sh_addr >= last_pt_load->header.p_vaddr && lst->header.sh_addr + lst->header.sh_size <= last_pt_load->header.p_vaddr + last_pt_load->header.p_memsz)
+		{
+			*last_sec_id = i;
+			last_sec = lst;
+		}
+		++i;
+	}
+	return last_sec;
+}
+
+static void build_new_section(t_env *env, t_segment_list *last_pt_load)
 {
 	env->new_sec_hdr.sh_name = 0;
 	env->new_sec_hdr.sh_type = SHT_PROGBITS;
 	env->new_sec_hdr.sh_flags = SHF_EXECINSTR | SHF_ALLOC;
 	env->new_sec_hdr.sh_link = 0;
 	env->new_sec_hdr.sh_info = 0;
+	env->new_sec_hdr.sh_entsize = 0;
 	env->new_sec_hdr.sh_addralign = 16;
-	t_segment_list *lpt = NULL;
-	for (t_segment_list *lst = env->elf.segments; lst; lst = lst->next)
+	env->new_sec_hdr.sh_offset = last_pt_load->header.p_offset + last_pt_load->header.p_memsz;
+	env->new_sec_hdr.sh_addr = last_pt_load->header.p_vaddr + last_pt_load->header.p_memsz;
+}
+
+static void update_offsets(t_env *env, t_section_list *new, uint32_t last_sec_id)
+{
+	int update = 0;
+	t_section_list *prv = NULL;
+	for (t_section_list *lst = env->elf.sections; lst; prv = lst, lst = lst->next)
 	{
-		if (lst->header.p_type == PT_LOAD)
-		{
-			lpt = lst;
-			lpt->header.p_flags = PF_X | PF_W | PF_R;
-		}
+		if (lst->header.sh_link > last_sec_id)
+			lst->header.sh_link++;
+		if (update && prv)
+			lst->header.sh_offset = prv->header.sh_offset + prv->header.sh_size;
+		if (lst == new)
+			update = 1;
 	}
-	if (!lpt)
+}
+
+void inject(t_env *env)
+{
+	t_segment_list *last_pt_load = get_last_pt_load(env);
+	if (!last_pt_load)
 		ERROR("Can't find PT_LOAD");
-	env->new_sec_hdr.sh_offset = lpt->header.p_offset + lpt->header.p_filesz;
-	env->new_sec_hdr.sh_addr = lpt->header.p_vaddr + lpt->header.p_memsz;
-	t_section_list *lsec = NULL;
-	int i = 0;
-	unsigned int lsecid = 0;
-	for (t_section_list *lst = env->elf.sections; lst; lst = lst->next)
-	{
-		if (lst->header.sh_addr >= lpt->header.p_vaddr && lst->header.sh_addr + lst->header.sh_size <= lpt->header.p_vaddr + lpt->header.p_memsz)
-		{
-			lsecid = i;
-			lsec = lst;
-		}
-		++i;
-	}
-	if (!lsec)
-		ERROR("Can't find section");
-	lpt->header.p_memsz += env->new_sec_hdr.sh_size;
-	lpt->header.p_filesz += env->new_sec_hdr.sh_size;
+	uint32_t last_sec_id;
+	t_section_list *last_section = get_last_section(env, last_pt_load, &last_sec_id);
+	if (!last_section)
+		ERROR("Can't find last section");
+
 	env->elf.header.e_shnum++;
+	build_new_section(env, last_pt_load);
+
+	last_pt_load->header.p_memsz += env->new_sec_hdr.sh_size;
+	last_pt_load->header.p_filesz = last_pt_load->header.p_memsz;
+
 	if (env->elf.header.e_shoff > env->new_sec_hdr.sh_offset)
 		env->elf.header.e_shoff += env->new_sec_hdr.sh_size;
-	if (lsecid < env->elf.header.e_shstrndx)
+	if (last_sec_id < env->elf.header.e_shstrndx)
 		env->elf.header.e_shstrndx++;
 	t_section_list *new = malloc(sizeof(*new));
 	if (!new)
@@ -49,24 +85,13 @@ void inject(t_env *env)
 	new->buffer.pos = env->new_sec_hdr.sh_offset;
 	new->buffer.len = env->new_sec_hdr.sh_size;
 	new->header = env->new_sec_hdr;
-	new->next = lsec->next;
-	lsec->next = new;
+	new->next = last_section->next;
+	last_section->next = new;
 	env->elf.header.e_entry = env->new_sec_hdr.sh_addr;
+	update_offsets(env, new, last_sec_id);
 	for (t_section_list *lst = env->elf.sections; lst; lst = lst->next)
 	{
-		if (lst->header.sh_link > lsecid)
-			lst->header.sh_link++;
-		if (lst->header.sh_offset >= new->header.sh_offset && lst != new && lst->header.sh_type != SHT_NOBITS)
-			lst->header.sh_offset += new->header.sh_size;
-		if (lst->header.sh_addr > new->header.sh_addr && lst != new)
-			lst->header.sh_addr += new->header.sh_size;
-	}
-	for (t_segment_list *lst = env->elf.segments; lst; lst = lst->next)
-	{
-		if (lst->header.p_offset > new->header.sh_offset)
-		{
-			lst->header.p_offset += new->header.sh_size;
-			lst->header.p_vaddr += new->header.sh_size;
-		}
+		if (lst->header.sh_type == SHT_SYMTAB)
+			lst->header.sh_link = 0;
 	}
 }

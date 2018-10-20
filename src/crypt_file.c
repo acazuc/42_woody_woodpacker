@@ -26,11 +26,10 @@ void crypt_file(t_env *env)
 		if (ft_strcmp(name, ".text"))
 			continue;
 		int8_t xor = 0x94;
-		for (size_t i = lst->buffer.pos; i < lst->buffer.len; ++i)
+		for (size_t i = 0; i < lst->buffer.len; ++i)
 		{
-			((char*)lst->buffer.data)[i] ^= xor;
-			xor = ((char*)lst->buffer.data)[i];
-			//++xor;
+			((char*)lst->buffer.data)[lst->buffer.pos + i] ^= xor;
+			xor = ((char*)lst->buffer.data)[lst->buffer.pos + i];
 		}
 		return;
 	}

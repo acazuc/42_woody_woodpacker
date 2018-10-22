@@ -17,20 +17,11 @@ top:	pushf
 	mov rdx, 14
 	syscall
 
-	; *** Old Style ***
-
-	; Loading start & end addresses
-	;mov rax, [rel head]
-	;mov rbx, [rel tail]
-	;mov cl, 0x94
-
-	; *** New Style ***
-
 	; Loading start & end addresses
 	lea rax, [rel top]
-	add rax, [rel head]
+	add rax, [rel hdoff]
 	mov rbx, rax
-	add rbx, [rel tail]
+	add rbx, [rel len]
 	mov cl, 0x94	
 
 	; Decrypting
@@ -40,12 +31,6 @@ lstart: mov dl, [rax]
 	inc rax
 	cmp rax, rbx
 	jne lstart
-
-	;mov rax, 1
-	;mov rdi, rax
-	;lea rsi, [rel woody]
-	;mov rdx, 14
-	;syscall
 
 	; Restoring registers
 	pop rsi
@@ -59,7 +44,7 @@ lstart: mov dl, [rax]
 	; Starting main program. Jump address is defined by packer
 	jmp 0x00
 
-	; Data part
-head:	dq 0
-tail:	dq 0
+	; Data part. Head offset and lenght also defined by packer
+hdoff:	dq 0
+len:	dq 0
 woody:	db '....WOODY....', 10

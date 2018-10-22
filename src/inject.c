@@ -89,9 +89,12 @@ void inject(t_env *env)
 	last_section->next = new;
 	env->elf.header.e_entry = env->new_sec_hdr.sh_addr;
 	update_offsets(env, new, last_sec_id);
+	t_section_list *last = NULL;
 	for (t_section_list *lst = env->elf.sections; lst; lst = lst->next)
 	{
+		last = lst;
 		if (lst->header.sh_type == SHT_SYMTAB)
 			lst->header.sh_link = 0;
 	}
+	env->elf.header.e_shoff = last->header.sh_offset + last->header.sh_size;
 }

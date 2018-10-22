@@ -12,7 +12,7 @@
 # include <errno.h>
 # include <elf.h>
 
-# define ERROR(s) {dprintf(2, s);exit(EXIT_FAILURE);}
+# define ERROR(s) {dprintf(2, s"\n");exit(EXIT_FAILURE);}
 
 typedef struct s_buffer
 {

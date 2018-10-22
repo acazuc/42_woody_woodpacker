@@ -10,10 +10,10 @@ static void parse_segments(t_env *env)
 	{
 		t_segment_list *segment = malloc(sizeof(*segment));
 		if (!segment)
-			ERROR("Failed to malloc segment");
+			ERROR("Failed to malloc segment\n");
 		buf.pos = env->elf.header.e_phoff + i * env->elf.header.e_phentsize;
 		if (!buffer_read(&buf, &segment->header, sizeof(segment->header)))
-			ERROR("Invalid segment header");
+			ERROR("Invalid segment header\n");
 		segment->buffer.data = env->bin;
 		segment->buffer.pos = segment->header.p_offset;
 		segment->buffer.len = segment->header.p_filesz;
@@ -36,10 +36,10 @@ static void parse_sections(t_env *env)
 	{
 		t_section_list *section = malloc(sizeof(*section));
 		if (!section)
-			ERROR("Failed to malloc section");
+			ERROR("Failed to malloc section\n");
 		buf.pos = env->elf.header.e_shoff + i * env->elf.header.e_shentsize;
 		if (!buffer_read(&buf, &section->header, sizeof(section->header)))
-			ERROR("Invalid section header");
+			ERROR("Invalid section header\n");
 		section->buffer.data = env->bin;
 		section->buffer.pos = section->header.sh_offset;
 		section->buffer.len = section->header.sh_size;

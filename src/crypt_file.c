@@ -33,5 +33,5 @@ void crypt_file(t_env *env)
 		}
 		return;
 	}
-	ERROR("no .text section");
+	ERROR("no .text section\n");
 }

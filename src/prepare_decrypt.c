@@ -30,7 +30,7 @@ void prepare_decrypt(t_env *env)
 		env->crypt_len = lst->header.sh_size;
 		goto next;
 	}
-	ERROR("no .text section");
+	ERROR("no .text section\n");
 next:
 	;
 	t_segment_list *lpt = NULL;
@@ -40,6 +40,6 @@ next:
 			lpt = lst;
 	}
 	if (!lpt)
-		ERROR("Can't find PT_LOAD");
+		ERROR("Can't find PT_LOAD\n");
 	env->new_sec_hdr.sh_addr = lpt->header.p_vaddr + lpt->header.p_memsz;
 }

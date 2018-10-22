@@ -62,11 +62,11 @@ void inject(t_env *env)
 {
 	t_segment_list *last_pt_load = get_last_pt_load(env);
 	if (!last_pt_load)
-		ERROR("Can't find PT_LOAD");
+		ERROR("Can't find PT_LOAD\n");
 	uint32_t last_sec_id;
 	t_section_list *last_section = get_last_section(env, last_pt_load, &last_sec_id);
 	if (!last_section)
-		ERROR("Can't find last section");
+		ERROR("Can't find last section\n");
 
 	env->elf.header.e_shnum++;
 	build_new_section(env, last_pt_load);
@@ -80,7 +80,7 @@ void inject(t_env *env)
 		env->elf.header.e_shstrndx++;
 	t_section_list *new = malloc(sizeof(*new));
 	if (!new)
-		ERROR("failed to malloc new section");
+		ERROR("failed to malloc new section\n");
 	new->buffer.data = ((char*)env->new_sec_data) - env->new_sec_hdr.sh_offset;
 	new->buffer.pos = env->new_sec_hdr.sh_offset;
 	new->buffer.len = env->new_sec_hdr.sh_size;

@@ -99,8 +99,16 @@ void decryptcodegen( t_env *env )
 
 			*( uint32_t * ) tail = ( ssize_t ) *(*env).start_addr - ( ( ssize_t ) (*env).new_sec_hdr.sh_addr + ( ssize_t ) (*sect).sh_size - 30 );
 			//UINT_MAX - ( uint64_t ) ( ( (*env).new_sec_hdr.sh_addr - ( uint64_t ) (*env).start_addr ) + ( tail - ( uint64_t ) data ) );
-			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart;
-			*( uint64_t * ) ( tail + 12 ) = (*env).crypt_len + (*env).crypt_vstart;
+
+			// *** Old Style ***
+
+			//*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart;
+			//*( uint64_t * ) ( tail + 12 ) = (*env).crypt_len + (*env).crypt_vstart;
+
+			// *** New style ***
+
+			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart - (*env).new_sec_hdr.sh_addr;
+			*( uint64_t * ) ( tail + 12 ) = (*env).crypt_len;
 
 			(*env).new_sec_data = data;
 			(*env).new_sec_hdr.sh_size = (*sect).sh_size;

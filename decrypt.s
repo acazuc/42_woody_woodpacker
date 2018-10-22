@@ -2,7 +2,7 @@
 
 section .text
 	; Saving registers
-	pushf
+top:	pushf
 	push rax
 	push rbx
 	push rcx
@@ -17,12 +17,21 @@ section .text
 	mov rdx, 14
 	syscall
 
+	; *** Old Style ***
+
 	; Loading start & end addresses
-	mov rax, [rel head]
-	lea rax, [rel rax]
-	mov rbx, [rel tail]
-	lea rbx, [rel rbx]
-	mov cl, 0x94
+	;mov rax, [rel head]
+	;mov rbx, [rel tail]
+	;mov cl, 0x94
+
+	; *** New Style ***
+
+	; Loading start & end addresses
+	lea rax, [rel top]
+	add rax, [rel head]
+	mov rbx, rax
+	add rbx, [rel tail]
+	mov cl, 0x94	
 
 	; Decrypting
 lstart: mov dl, [rax]
@@ -32,11 +41,11 @@ lstart: mov dl, [rax]
 	cmp rax, rbx
 	jne lstart
 
-;	mov rax, 1
-;	mov rdi, rax
-;	lea rsi, [rel woody]
-;	mov rdx, 14
-;	syscall
+	;mov rax, 1
+	;mov rdi, rax
+	;lea rsi, [rel woody]
+	;mov rdx, 14
+	;syscall
 
 	; Restoring registers
 	pop rsi

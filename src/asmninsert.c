@@ -7,7 +7,7 @@ void quit( int code )
 	exit( code );
 }
 
-void assemble( void )
+void assemble( const char *decryptinpath )
 {
 	pid_t child;
 	int bullshit;
@@ -26,7 +26,7 @@ void assemble( void )
 		char *argv[7] =
 		{
 			"nasm",
-			DECRYPTINPATH,
+			( char * ) decryptinpath,
 			"-f",
 			"elf64",
 			"-o",
@@ -73,8 +73,26 @@ void decryptcodegen( t_env *env )
 	Elf64_Ehdr *header;
 	Elf64_Shdr *sect;
 	char *strtable;
-	
-	assemble();
+
+	const char *paths[4] =
+	{
+		"decrypt.s",
+		"decryptkey.s"
+		"decrypthard.s",
+		"decrypthardkey.s"
+	};
+
+	const uint8_t offset[4] =
+	{
+		30,
+		42,
+		0,
+		0,
+	};
+
+	uint_fast8_t algid = ( (*env).askkey ? 1 : 0 ) + ( (*env).algo == 2 ? 2 : 0 );
+
+	assemble( paths[algid] );
 	addr = getbin();
 
 	if ( ft_memcmp( addr, ELFMAG, 4 ) )
@@ -97,9 +115,18 @@ void decryptcodegen( t_env *env )
 			//printf( "%lx\n", (*env).crypt_len );
 			//printf( "%lx %lx\n", (*env).crypt_vstart, (*env).crypt_len + (*env).crypt_vstart );
 
-			*( uint32_t * ) tail = *(*env).start_addr - ( (*env).new_sec_hdr.sh_addr + (*sect).sh_size - 30 );
+			*( uint32_t * ) tail = *(*env).start_addr - ( (*env).new_sec_hdr.sh_addr + (*sect).sh_size - offset[algid] );
 			*( uint64_t * ) ( tail + 4 ) = (*env).crypt_vstart - (*env).new_sec_hdr.sh_addr;
 			*( uint64_t * ) ( tail + 12 ) = (*env).crypt_len;
+
+			switch ( algid )
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					break;
+			}
 
 			(*env).new_sec_data = data;
 			(*env).new_sec_hdr.sh_size = (*sect).sh_size;

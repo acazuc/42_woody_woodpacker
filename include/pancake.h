@@ -14,11 +14,10 @@
 # define YAY puts( "Breakpoint passed yay :3" )
 
 void quit( int code );
-void assemble( void );
+void assemble( const char *decryptinpath );
 void *getbin( void );
 void decryptcodegen( t_env *env );
 uint32_t swab32( uint32_t dw );
 uint64_t swab64( uint64_t qw );
-
 
 #endif

@@ -30,8 +30,9 @@ void crypt_file(t_env *env)
 			int8_t xor = env->key.b[0];
 			for (size_t i = 0; i < lst->buffer.len; ++i)
 			{
+				uint8_t tmp = ((char*)lst->buffer.data)[lst->buffer.pos + i];
 				((char*)lst->buffer.data)[lst->buffer.pos + i] ^= xor;
-				xor = ((char*)lst->buffer.data)[lst->buffer.pos + i];
+				xor = tmp;
 			}
 		}
 		else
@@ -39,8 +40,9 @@ void crypt_file(t_env *env)
 			uint64_t xor = env->key.q;
 			for (size_t i = 0; i < lst->buffer.len; ++i)
 			{
+				uint8_t tmp = ((char*)lst->buffer.data)[lst->buffer.pos + i];
 				((char*)lst->buffer.data)[lst->buffer.pos + i] ^= xor;
-				xor = ((char*)lst->buffer.data)[lst->buffer.pos + i];
+				xor = (xor & ~0xff) | tmp;
 				xor = (xor >> 31) | (xor << (64 - 31));
 			}
 		}

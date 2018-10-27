@@ -59,3 +59,11 @@ char ft_strcmp(char *s1, char *s2)
 		i++;
 	return (((unsigned char*)s1)[i] - ((unsigned char*)s2)[i]);
 }
+
+size_t ft_strlen(char *s)
+{
+	size_t i = 0;
+	while (s[i])
+		++i;
+	return i;
+}

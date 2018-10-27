@@ -18,6 +18,7 @@ SRCS_NAME = main.c \
 	print.c \
 	inject.c \
 	prepare_decrypt.c \
+	key_derivate.c \
 
 SRCS = $(addprefix $(SRCS_PATH), $(SRCS_NAME))
 

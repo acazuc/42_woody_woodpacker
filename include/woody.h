@@ -11,8 +11,9 @@
 # include <stdio.h>
 # include <errno.h>
 # include <elf.h>
+# include "colors.h"
 
-# define ERROR(s) {dprintf(2, s"\n");exit(EXIT_FAILURE);}
+# define ERROR(s) {dprintf(2, RED s);exit(EXIT_FAILURE);}
 
 typedef struct s_buffer
 {
@@ -55,6 +56,13 @@ typedef struct s_env
 	Elf64_Shdr new_sec_hdr;
 	void *new_sec_data;
 	uint64_t new_sec_hdr_pos;
+	union
+	{
+		uint8_t b[8];
+		uint64_t q;
+	} key;
+	int askkey;
+	int algo;
 	t_elf elf;
 } t_env;
 
@@ -64,6 +72,9 @@ void crypt_file(t_env *env);
 void file_output(t_env *env);
 void prepare_decrypt(t_env *env);
 void inject(t_env *env);
+
+void key_derivate_1(t_env *env, char *key);
+void key_derivate_8(t_env *env, char *key);
 
 void print_file(t_env *env);
 void print_ehdr(t_env *env, Elf64_Ehdr *hdr);
@@ -76,5 +87,6 @@ int ft_memcmp(const void *a1, const void *a2, size_t len);
 void *ft_memcpy(void *dst, const void *src, size_t n);
 void ft_bzero(void *s, size_t n);
 char ft_strcmp(char *s1, char *s2);
+size_t ft_strlen(char *s);
 
 #endif

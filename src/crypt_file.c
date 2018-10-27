@@ -25,11 +25,24 @@ void crypt_file(t_env *env)
 			continue;
 		if (ft_strcmp(name, ".text"))
 			continue;
-		int8_t xor = 0x94;
-		for (size_t i = 0; i < lst->buffer.len; ++i)
+		if (env->algo == 1)
 		{
-			((char*)lst->buffer.data)[lst->buffer.pos + i] ^= xor;
-			xor = ((char*)lst->buffer.data)[lst->buffer.pos + i];
+			int8_t xor = env->key.b[0];
+			for (size_t i = 0; i < lst->buffer.len; ++i)
+			{
+				((char*)lst->buffer.data)[lst->buffer.pos + i] ^= xor;
+				xor = ((char*)lst->buffer.data)[lst->buffer.pos + i];
+			}
+		}
+		else
+		{
+			uint64_t xor = env->key.q;
+			for (size_t i = 0; i < lst->buffer.len; ++i)
+			{
+				((char*)lst->buffer.data)[lst->buffer.pos + i] ^= xor;
+				xor = ((char*)lst->buffer.data)[lst->buffer.pos + i];
+				xor = (xor >> 31) | (xor << (64 - 31));
+			}
 		}
 		return;
 	}

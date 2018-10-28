@@ -51,6 +51,14 @@ void read_random_bytes(void *ptr, size_t len)
 	close(fd);
 }
 
+void read_random_chars(char *ptr, size_t len)
+{
+	char chars[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	read_random_bytes(ptr, len);
+	for (size_t i = 0; i < len; ++i)
+		ptr[i] = chars[ptr[i] % (sizeof(chars) - 1)];
+}
+
 int main(int ac, char **av)
 {
 	t_env env;
@@ -83,26 +91,28 @@ int main(int ac, char **av)
 	}
 	if (!file)
 		ERROR(RED "woody_woodpacker " WHITE "[" PEACHY "--hard" WHITE "] [" YELLOW "--askkey" WHITE "] [" GREEN "--key key" WHITE "] " BLUE "file\n" DEFAULT);
-	if (key)
+	if (!key)
 	{
-		if (env.algo == 2)
-			key_derivate_8(&env, key);
-		else
-			key_derivate_1(&env, key);
+		if (!(key = malloc(33)))
+			ERROR(RED "malloc failed");
+		read_random_chars(key, 32);
+		key[32] = 0;
+	}
+	if (env.algo == 2)
+		key_derivate_8(&env, key);
+	else
+		key_derivate_1(&env, key);
+	printf(CYAN "Key: " DEFAULT "%s\n" DEFAULT, key);
+	/*if (env.algo == 2)
+	{
+		read_random_bytes(&env.key.q, 8);
+		printf(GREEN "Key: " DEFAULT "0x%016lX\n" DEFAULT, env.key.q);
 	}
 	else
 	{
-		if (env.algo == 2)
-		{
-			read_random_bytes(&env.key.q, 8);
-			printf(GREEN "Key: " CYAN "0x%016lX\n" DEFAULT, env.key.q);
-		}
-		else
-		{
-			read_random_bytes(&env.key.b[0], 1);
-			printf(GREEN "Key: " CYAN "0x%02X\n" DEFAULT, env.key.b[0]);
-		}
-	}
+		read_random_bytes(&env.key.b[0], 1);
+		printf(GREEN "Key: " DEFAULT "0x%02X\n" DEFAULT, env.key.b[0]);
+	}*/
 	read_file(file, &env.bin, &env.bin_len);
 	parse_file(&env);
 	//print_file(&env);

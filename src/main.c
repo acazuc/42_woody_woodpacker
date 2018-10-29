@@ -74,7 +74,7 @@ int main(int ac, char **av)
 		}
 		else if (!ft_strcmp(av[i], "--key"))
 		{
-			if (i + 1 >= ac)
+			if (++i >= ac)
 				ERROR("woody_woodpacker: key expected after --key\n");
 			key = av[i];
 		}

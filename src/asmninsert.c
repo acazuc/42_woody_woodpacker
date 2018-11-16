@@ -20,6 +20,12 @@ void assemble( const char *decryptinpath )
 			exit( EXIT_FAILURE );
 		}
 		wait( &bullshit );
+
+		if ( bullshit )
+		{
+			perror( PERRORPREFIX "Can't assemble decrypt file" );
+			quit( EXIT_FAILURE );
+		}
 	}
 	else
 	{
@@ -76,18 +82,18 @@ void decryptcodegen( t_env *env )
 
 	const char *paths[4] =
 	{
-		"decrypt.s",
-		"decryptkey.s"
-		"decrypthard.s",
-		"decrypthardkey.s"
+		"decrypts/decrypt.s",
+		"decrypts/decryptkey.s",
+		"decrypts/decrypthard.s",
+		"decrypts/decrypthardkey.s"
 	};
 
 	const uint8_t offset[4] =
 	{
-		30,
+		31,
 		42,
-		0,
-		0,
+		38,
+		42,
 	};
 
 	uint_fast8_t algid = ( (*env).askkey ? 1 : 0 ) + ( (*env).algo == 2 ? 2 : 0 );
@@ -109,7 +115,7 @@ void decryptcodegen( t_env *env )
 		if ( !ft_memcmp( &strtable[(*sect).sh_name], ".text", 6 ) )
 		{
 			uint8_t *data = addr + (*sect).sh_offset;
-			void *tail = data + (*sect).sh_size - 34;
+			void *tail = data + (*sect).sh_size - offset[algid] - 4;
 
 			//printf( "%lx %lx\n", *(*env).start_addr, (*env).new_sec_hdr.sh_addr );
 			//printf( "%lx\n", (*env).crypt_len );
@@ -122,8 +128,14 @@ void decryptcodegen( t_env *env )
 			switch ( algid )
 			{
 				case 0:
-				case 1:
+					*( uint8_t * ) ( tail + 20 ) = (*env).key.b[0];
+					break;
+
 				case 2:
+					*( uint64_t * ) ( tail + 20 ) = (*env).key.q;
+					break;
+
+				case 1:
 				case 3:
 					break;
 			}
@@ -149,16 +161,16 @@ void decryptcodegen( t_env *env )
 }
 
 /*int main( void )
-  {
-  t_env env;
+{
+	t_env env;
 
-  ft_bzero( &env, sizeof ( t_env ) );
+	ft_bzero( &env, sizeof ( t_env ) );
 
-  env.start_addr = 0;
-  env.new_sec_hdr.sh_addr = 0x66;
-  env.crypt_start = 0x88888888;
-  env.crypt_end = 0xabcdef00;
+	env.start_addr = 0;
+	env.new_sec_hdr.sh_addr = 0x66;
+	//env.crypt_start = 0x88888888;
+	//env.crypt_end = 0xabcdef00;
 
-  decryptcodegen( &env );
-  return EXIT_SUCCESS;
-  }*/
+	decryptcodegen( &env );
+	return EXIT_SUCCESS;
+}*/

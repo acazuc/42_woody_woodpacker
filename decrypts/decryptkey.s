@@ -9,8 +9,10 @@ top:	pushf
 	push rdx
 	push rdi
 	push rsi
+	push r8
+	push r9
 
-	; ----- KEY GET
+	; --- Get Key ---
 
 	; Printing GIVE KEY PLS
 	mov rax, 1
@@ -21,7 +23,7 @@ top:	pushf
 
 	; Clear rbx, for use as key register
 	mov bl, 1
-	mov rdx, 0x071F3B5989B3C7EF
+	mov r9, 0x071F3B5989B3C7EF
 
 	; Read one char
 getone:	mov rax, 0
@@ -36,15 +38,13 @@ getone:	mov rax, 0
 	jz getone
 
 	; Test for end of key string
-	cmp rax, 10
+	mov al, [rsp]
+	cmp al, 10
 	jz keydone
 
-	; Prepare key set loop
-	mov al, [rsp]
-	xor r8, r8
-
 	; Add curent char to key
-	mov r8b, dl
+	xor r8, r8
+	mov r8b, r9b
 	imul r8, rax
 	add bl, r8b
 
@@ -52,9 +52,9 @@ getone:	mov rax, 0
 	xor rcx, rcx
 	mov cl, al
 	imul rcx, 8
-	ror rdx, cl
+	ror r9, cl
 
-	; Test for end of loop counter
+	; Go to next char
 	jmp getone
 
 	; Exit in case of failed read
@@ -62,33 +62,30 @@ bad:	mov rax, 60
 	mov rdi, 0
 	syscall
 
-keydone:
-	mov cl, bl
-
-	; END KEY GET
+	; --- Decrypt ---
 
 	; Printing WOODY
-	mov rax, 1
+keydone:mov rax, 1
 	mov rdi, rax
 	lea rsi, [rel woody]
 	mov rdx, 14
 	syscall
 
-	; Loading start & end addresses
+	; Loading start address, section length & key
 	lea rax, [rel top]
 	add rax, [rel hdoff]
-	mov rbx, rax
-	add rbx, [rel len]
+	mov rcx, [rel len]
 
 	; Decrypting
-lstart: mov dl, [rax]
-	xor [rax], cl
-	mov cl, dl
+lstart: xor [rax], bl
+	mov bl, [rax]
 	inc rax
-	cmp rax, rbx
-	jne lstart
+	dec rcx
+	jnz lstart
 
 	; Restoring registers
+	pop r9
+	pop r8
 	pop rsi
 	pop rdi
 	pop rdx

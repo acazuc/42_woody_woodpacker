@@ -27,7 +27,7 @@ void crypt_file(t_env *env)
 			continue;
 		if (env->algo == 1)
 		{
-			int8_t xor = env->key.b[0];
+			uint8_t xor = env->key.b[0];
 			for (size_t i = 0; i < lst->buffer.len; ++i)
 			{
 				uint8_t tmp = ((char*)lst->buffer.data)[lst->buffer.pos + i];
